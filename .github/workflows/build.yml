@@ -31,7 +31,7 @@ jobs:
           unzip -q ghidra.zip
           dir="$(echo "$RUNNER_TEMP"/ghidra_*/)"
           # Same tag as upstream's build script: <version>_<release name>, e.g. 12.1.4_PUBLIC
-          props="$dir/Ghidra/application.properties"
+          props="${dir}Ghidra/application.properties"
           version="$(sed -n 's/^application\.version=//p' "$props")"
           release_name="$(sed -n 's/^application\.release\.name=//p' "$props")"
           echo "tag=${version}_${release_name}" >> "$GITHUB_OUTPUT"
