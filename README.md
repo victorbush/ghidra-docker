@@ -6,10 +6,10 @@ from a published Ghidra release and publishes it to Docker Hub as
 
 ## How it works
 
-- `build.sh` sets the URL of the Ghidra release zip at the top. It downloads and extracts the zip.
-- Publishing a GitHub release runs the **Publish Docker image** workflow. It runs
-  `build.sh --download-only`, builds the release's `docker/Dockerfile`, pushes the
-  image to Docker Hub and adds a build provenance attestation.
+Publishing a GitHub release runs the **Publish Docker image** workflow
+(`.github/workflows/build.yml`). It downloads the Ghidra release zip set in
+`GHIDRA_URL` at the top of the workflow, builds the release's own `docker/Dockerfile`,
+pushes the image to Docker Hub and adds a build provenance attestation.
 
 The workflow needs the repository secrets `DOCKER_USERNAME` and `DOCKER_PASSWORD`
 (a Docker Hub [access token](https://docs.docker.com/security/for-developers/access-tokens/)
@@ -18,26 +18,19 @@ with read and write access).
 ## Tags
 
 - `<version>_<release name>` (e.g. `12.1.4_PUBLIC`), the same tag upstream's
-  `build-docker-image.sh` uses
+  `docker/build-docker-image.sh` uses
 - `latest`, unless the GitHub release is marked as a pre-release
 
 ## Publishing
 
-1. Set `GHIDRA_URL` in `build.sh` and merge to `main`.
+1. Set `GHIDRA_URL` in the workflow and merge to `main`.
 2. Create a GitHub release from `main` whose tag is the image tag (e.g. `12.1.4_PUBLIC`).
    The workflow fails if the release tag doesn't match the image tag.
 
 ## Building locally
 
-Requires `bash`, `curl`, `unzip` and `docker`.
-
-```sh
-./build.sh
-```
-
-This runs the release's own `docker/build-docker-image.sh`, which tags the image
-`ghidra/ghidra:<version>_<release name>` (e.g. `ghidra/ghidra:12.1.4_PUBLIC`).
-Nothing is pushed.
+Download and extract a [Ghidra release](https://github.com/NationalSecurityAgency/ghidra/releases)
+and run `docker/build-docker-image.sh` from it.
 
 ## Usage
 

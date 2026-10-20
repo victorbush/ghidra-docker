@@ -10,6 +10,8 @@ on:
     types: [published]
 
 env:
+  # Ghidra release zip to build
+  GHIDRA_URL: https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip
   IMAGE_NAME: victorbush/ghidra
 
 jobs:
@@ -21,12 +23,19 @@ jobs:
       attestations: write
       id-token: write
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
       - name: Download Ghidra
         id: ghidra
-        run: ./build.sh --download-only
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -fL --retry 3 -o ghidra.zip "$GHIDRA_URL"
+          unzip -q ghidra.zip
+          dir="$(echo "$RUNNER_TEMP"/ghidra_*/)"
+          # Same tag as upstream's build script: <version>_<release name>, e.g. 12.1.4_PUBLIC
+          props="$dir/Ghidra/application.properties"
+          version="$(sed -n 's/^application\.version=//p' "$props")"
+          release_name="$(sed -n 's/^application\.release\.name=//p' "$props")"
+          echo "tag=${version}_${release_name}" >> "$GITHUB_OUTPUT"
+          echo "context=$dir" >> "$GITHUB_OUTPUT"
 
       - name: Check release tag matches image tag
         if: github.event.release.tag_name != steps.ghidra.outputs.tag
@@ -57,7 +66,7 @@ jobs:
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: ${{ steps.ghidra.outputs.context }}
-          file: ${{ steps.ghidra.outputs.context }}/docker/Dockerfile
+          file: ${{ steps.ghidra.outputs.context }}docker/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
