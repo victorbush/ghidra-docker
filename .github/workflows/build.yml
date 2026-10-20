@@ -1,21 +1,11 @@
 name: Build and publish
 
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
-    inputs:
-      version:
-        description: Ghidra version to build (defaults to ghidra.env). Not tagged as latest.
-        required: false
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,19 +13,15 @@ jobs:
       attestations: write
       id-token: write
     env:
-      IMAGE_NAME: ghcr.io/${{ github.repository }}
-      PUSH: ${{ github.event_name != 'pull_request' }}
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ghidra
     steps:
       - uses: actions/checkout@v4
 
       - name: Build image
         id: build
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: ./build.sh ${{ inputs.version }}
+        run: ./build.sh
 
       - name: Log in to GHCR
-        if: env.PUSH == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -44,25 +30,15 @@ jobs:
 
       - name: Push image
         id: push
-        if: env.PUSH == 'true'
         env:
-          TAGS: ${{ steps.build.outputs.tags }}
-          VERSION: ${{ steps.build.outputs.version }}
-          TAG_LATEST: ${{ inputs.version == '' }}
+          TAG: ${{ steps.build.outputs.tag }}
         run: |
-          tags=($TAGS)
-          if [ "$TAG_LATEST" = "true" ]; then
-            docker tag "$IMAGE_NAME:$VERSION" "$IMAGE_NAME:latest"
-            tags+=("$IMAGE_NAME:latest")
-          fi
-          for t in "${tags[@]}"; do
-            docker push "$t"
-          done
-          digest="$(docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE_NAME:$VERSION")"
+          docker push "$IMAGE_NAME:$TAG"
+          docker push "$IMAGE_NAME:latest"
+          digest="$(docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE_NAME:$TAG")"
           echo "digest=${digest#*@}" >> "$GITHUB_OUTPUT"
 
       - name: Attest build provenance
-        if: env.PUSH == 'true'
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.IMAGE_NAME }}

@@ -1,43 +1,40 @@
 # ghidra-docker
 
 Builds the official [Ghidra Docker image](https://github.com/NationalSecurityAgency/ghidra/tree/master/docker)
-from a published Ghidra release and publishes it to the GitHub Container Registry.
+from a published Ghidra release and publishes it to `ghcr.io/victorbush/ghidra`.
 
 ## How it works
 
-1. `ghidra.env` pins the Ghidra version (e.g. `GHIDRA_VERSION=12.1.4`).
-2. `build.sh` looks up the release for tag `Ghidra_<version>_build`, downloads the
-   release zip (`ghidra_<version>_PUBLIC_<date>.zip`, not the source archive), checks
-   it against the sha256 digest GitHub records for it, extracts it, and runs the
-   release's own `docker/build-docker-image.sh`.
-3. The GitHub Actions workflow runs `build.sh` and pushes the image to
-   `ghcr.io/victorbush/ghidra-docker`, along with a build provenance attestation.
+1. `ghidra.env` sets the Ghidra version and the URL of its release zip.
+2. `build.sh` downloads and extracts the zip, then runs the release's own
+   `docker/build-docker-image.sh`.
+3. The **Build and publish** workflow (run manually from the Actions tab, on `main`
+   only) runs `build.sh`, pushes the image to GHCR and adds a build provenance attestation.
+
+## Tags
+
+- `<version>` (e.g. `12.1.4`), or `<version>_<revision>` (e.g. `12.1.4_1`) when
+  `IMAGE_REVISION` is set in `ghidra.env`
+- `latest`
 
 ## Updating Ghidra
 
-Change `GHIDRA_VERSION` in `ghidra.env` and push to `main`. The workflow pushes these tags:
+Set `GHIDRA_VERSION` and `GHIDRA_URL` in `ghidra.env`, clear `IMAGE_REVISION`, merge to
+`main`, then run the workflow.
 
-- `<version>` (e.g. `12.1.4`)
-- `<version>_<release name>` (e.g. `12.1.4_PUBLIC`, which matches the upstream script's tag)
-- `latest`
-
-To build another version without changing the config, run the workflow manually
-and enter a version. Manual runs with a version don't move `latest`.
-
-Pull requests build the image without pushing it.
+To republish the same version (e.g. after fixing a build problem), set `IMAGE_REVISION`
+to `1`, or to one more than the last revision, and run the workflow again.
 
 ## Building locally
 
-Requires `bash`, `curl`, `jq`, `unzip` and `docker`.
+Requires `bash`, `curl`, `unzip` and `docker`.
 
 ```sh
-./build.sh            # version from ghidra.env
-./build.sh 12.1.3     # specific version
+./build.sh
 ```
 
-The image is tagged `ghidra/ghidra:<version>` by default. Set `IMAGE_NAME` to change
-the repository name. Set `GH_TOKEN` if you hit GitHub API rate limits. Downloads are
-extracted under `work/`.
+The image is tagged `ghidra:<tag>` and `ghidra:latest`. Set `IMAGE_NAME` to use a
+different repository name. Nothing is pushed.
 
 ## Usage
 
@@ -45,7 +42,7 @@ extracted under `work/`.
 docker run --rm --env MODE=headless \
     --volume /path/to/myproject:/home/ghidra/myproject \
     --volume /path/to/mybinary:/home/ghidra/mybinary \
-    ghcr.io/victorbush/ghidra-docker:latest \
+    ghcr.io/victorbush/ghidra:latest \
     /home/ghidra/myproject programFolder -import /home/ghidra/mybinary
 ```
 
@@ -55,5 +52,5 @@ for the other modes (`gui`, `ghidra-server`, `bsim`, `bsim-server`, `pyghidra`).
 ## Verifying the image
 
 ```sh
-gh attestation verify oci://ghcr.io/victorbush/ghidra-docker:latest --owner victorbush
+gh attestation verify oci://ghcr.io/victorbush/ghidra:latest --owner victorbush
 ```
