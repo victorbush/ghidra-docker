@@ -1,6 +1,6 @@
 # Publishes the image to Docker Hub when a GitHub release is published. The
-# release tag must match the image tag set in build.sh (e.g. 12.1.4_beta1).
-# Mark test releases as pre-releases so they don't move the latest tag.
+# release tag must match the image tag set in build.sh (e.g. 12.1.4). Releases
+# marked as pre-releases don't move the latest tag.
 
 name: Publish Docker image
 

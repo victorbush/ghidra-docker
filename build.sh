@@ -14,10 +14,9 @@ set -euo pipefail
 GHIDRA_VERSION=12.1.4
 GHIDRA_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip
 
-# Appended to the image tag as _<revision>, e.g. 12.1.4_beta1 or 12.1.4_1. Leave
-# empty for the first real publish of a version (tag: 12.1.4). Set to 1, 2, ...
-# to republish the same version.
-IMAGE_REVISION=beta1
+# Leave empty for the first publish of a version (tag: 12.1.4). To republish
+# the same version, set to 1, 2, ... (tags: 12.1.4_1, 12.1.4_2, ...).
+IMAGE_REVISION=
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

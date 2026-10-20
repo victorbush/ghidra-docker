@@ -18,19 +18,17 @@ with read and write access).
 
 ## Tags
 
-- `<version>` (e.g. `12.1.4`), or `<version>_<revision>` (e.g. `12.1.4_beta1`,
-  `12.1.4_1`) when `IMAGE_REVISION` is set in `build.sh`
+- `<version>` (e.g. `12.1.4`), or `<version>_<revision>` (e.g. `12.1.4_1`) when `IMAGE_REVISION` is set in `build.sh`
 - `latest`, unless the GitHub release is marked as a pre-release
 
 ## Publishing
 
 1. Set `GHIDRA_VERSION`, `GHIDRA_URL` and `IMAGE_REVISION` in `build.sh` and merge to `main`.
-2. Create a GitHub release from `main` whose tag is the image tag (e.g. `12.1.4_beta1`).
-   Tick **Set as a pre-release** for test builds so `latest` isn't moved.
+2. Create a GitHub release from `main` whose tag is the image tag (e.g. `12.1.4`).
    The workflow fails if the release tag doesn't match the tag in `build.sh`.
 
-Use `IMAGE_REVISION=beta1`, `beta2`, ... while testing, leave it empty for the real
-publish of a version, and set it to `1`, `2`, ... to republish the same version.
+Leave `IMAGE_REVISION` empty for the first publish of a version, and set it to
+`1`, `2`, ... to republish the same version.
 
 ## Building locally
 
