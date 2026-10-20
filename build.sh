@@ -7,8 +7,7 @@
 #                    publish workflow uses this and builds the image itself.
 set -euo pipefail
 
-# Ghidra release to build
-GHIDRA_VERSION=12.1.4
+# Ghidra release zip to build
 GHIDRA_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -29,12 +28,14 @@ rm "$ZIP"
 ghidra_dir="$(find "$WORK_DIR" -mindepth 1 -maxdepth 1 -type d -name 'ghidra_*' | head -n 1)"
 
 # Same tag as upstream's build script: <version>_<release name>, e.g. 12.1.4_PUBLIC
-release_name="$(sed -n 's/^application\.release\.name=//p' "$ghidra_dir/Ghidra/application.properties")"
-image_tag="${GHIDRA_VERSION}_${release_name}"
+properties="$ghidra_dir/Ghidra/application.properties"
+version="$(sed -n 's/^application\.version=//p' "$properties")"
+release_name="$(sed -n 's/^application\.release\.name=//p' "$properties")"
+image_tag="${version}_${release_name}"
 
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
 	{
-		echo "version=$GHIDRA_VERSION"
+		echo "version=$version"
 		echo "tag=$image_tag"
 		echo "context=$ghidra_dir"
 	} >> "$GITHUB_OUTPUT"

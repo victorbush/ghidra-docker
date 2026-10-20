@@ -1,5 +1,6 @@
 # Publishes the image to Docker Hub when a GitHub release is published. The
-# release tag must match the Ghidra version set in build.sh (e.g. 12.1.4). The
+# release tag must match the version of the Ghidra release in build.sh (e.g.
+# 12.1.4). The
 # image is tagged like upstream's build script (e.g. 12.1.4_PUBLIC) and latest. Releases
 # marked as pre-releases don't move the latest tag.
 
@@ -34,7 +35,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           GHIDRA_VERSION: ${{ steps.ghidra.outputs.version }}
         run: |
-          echo "::error::Release tag $RELEASE_TAG doesn't match Ghidra version $GHIDRA_VERSION from build.sh"
+          echo "::error::Release tag $RELEASE_TAG doesn't match Ghidra version $GHIDRA_VERSION"
           exit 1
 
       - name: Log in to Docker Hub
