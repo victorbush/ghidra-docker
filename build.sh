@@ -14,14 +14,9 @@ set -euo pipefail
 GHIDRA_VERSION=12.1.4
 GHIDRA_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip
 
-# Leave empty for the first publish of a version (tag: 12.1.4). To republish
-# the same version, set to 1, 2, ... (tags: 12.1.4_1, 12.1.4_2, ...).
-IMAGE_REVISION=
-
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 IMAGE_NAME="${IMAGE_NAME:-ghidra}"
-IMAGE_TAG="${GHIDRA_VERSION}${IMAGE_REVISION:+_$IMAGE_REVISION}"
 WORK_DIR="$REPO_DIR/work"
 ZIP="$WORK_DIR/$(basename "$GHIDRA_URL")"
 
@@ -39,7 +34,7 @@ ghidra_dir="$(find "$WORK_DIR" -mindepth 1 -maxdepth 1 -type d -name 'ghidra_*' 
 
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
 	{
-		echo "tag=$IMAGE_TAG"
+		echo "version=$GHIDRA_VERSION"
 		echo "context=$ghidra_dir"
 	} >> "$GITHUB_OUTPUT"
 fi
@@ -57,5 +52,5 @@ bash "$ghidra_dir/docker/build-docker-image.sh"
 # The upstream script doesn't reliably report build failures, so check the image exists
 docker image inspect "$upstream_image" > /dev/null
 
-docker tag "$upstream_image" "$IMAGE_NAME:$IMAGE_TAG"
-echo "Tagged $IMAGE_NAME:$IMAGE_TAG"
+docker tag "$upstream_image" "$IMAGE_NAME:$GHIDRA_VERSION"
+echo "Tagged $IMAGE_NAME:$GHIDRA_VERSION"
