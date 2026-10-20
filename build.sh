@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Download the Ghidra release configured in ghidra.env and build its Docker
-# image using the release's own docker/build-docker-image.sh.
+# Download a Ghidra release and build its Docker image using the release's own
+# docker/build-docker-image.sh.
 #
 # Usage: ./build.sh
 #
@@ -8,9 +8,15 @@
 #   IMAGE_NAME  Image repository to tag the result with (default: ghidra)
 set -euo pipefail
 
+# Ghidra release to build
+GHIDRA_VERSION=12.1.4
+GHIDRA_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip
+
+# Leave empty for the first publish of a version (tag: 12.1.4). To republish
+# the same version, set to 1, 2, ... (tags: 12.1.4_1, 12.1.4_2, ...).
+IMAGE_REVISION=
+
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=ghidra.env
-source "$REPO_DIR/ghidra.env"
 
 IMAGE_NAME="${IMAGE_NAME:-ghidra}"
 IMAGE_TAG="${GHIDRA_VERSION}${IMAGE_REVISION:+_$IMAGE_REVISION}"
