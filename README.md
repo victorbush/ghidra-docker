@@ -6,8 +6,7 @@ from a published Ghidra release and publishes it to Docker Hub as
 
 ## How it works
 
-- `build.sh` sets the Ghidra version, the URL of its release zip and the image
-  revision at the top. It downloads and extracts the zip.
+- `build.sh` sets the Ghidra version and the URL of its release zip at the top. It downloads and extracts the zip.
 - Publishing a GitHub release runs the **Publish Docker image** workflow. It runs
   `build.sh --download-only`, builds the release's `docker/Dockerfile`, pushes the
   image to Docker Hub and adds a build provenance attestation.
@@ -18,17 +17,14 @@ with read and write access).
 
 ## Tags
 
-- `<version>` (e.g. `12.1.4`), or `<version>_<revision>` (e.g. `12.1.4_1`) when `IMAGE_REVISION` is set in `build.sh`
+- `<version>` (e.g. `12.1.4`)
 - `latest`, unless the GitHub release is marked as a pre-release
 
 ## Publishing
 
-1. Set `GHIDRA_VERSION`, `GHIDRA_URL` and `IMAGE_REVISION` in `build.sh` and merge to `main`.
-2. Create a GitHub release from `main` whose tag is the image tag (e.g. `12.1.4`).
-   The workflow fails if the release tag doesn't match the tag in `build.sh`.
-
-Leave `IMAGE_REVISION` empty for the first publish of a version, and set it to
-`1`, `2`, ... to republish the same version.
+1. Set `GHIDRA_VERSION` and `GHIDRA_URL` in `build.sh` and merge to `main`.
+2. Create a GitHub release from `main` whose tag is the Ghidra version (e.g. `12.1.4`).
+   The workflow fails if the release tag doesn't match the version in `build.sh`.
 
 ## Building locally
 
@@ -39,7 +35,7 @@ Requires `bash`, `curl`, `unzip` and `docker`.
 ```
 
 This runs the release's own `docker/build-docker-image.sh` and tags the image
-`ghidra:<tag>`. Set `IMAGE_NAME` to use a different repository name. Nothing is pushed.
+`ghidra:<version>`. Set `IMAGE_NAME` to use a different repository name. Nothing is pushed.
 
 ## Usage
 
