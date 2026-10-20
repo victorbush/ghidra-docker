@@ -58,10 +58,6 @@ unzip -q "$WORK_DIR/$asset_name" -d "$WORK_DIR"
 rm "$WORK_DIR/$asset_name"
 
 ghidra_dir="$(find "$WORK_DIR" -mindepth 1 -maxdepth 1 -type d -name 'ghidra_*' | head -n 1)"
-if [ ! -f "$ghidra_dir/docker/build-docker-image.sh" ]; then
-	echo "ERROR: $asset_name does not contain docker/build-docker-image.sh" >&2
-	exit 1
-fi
 
 # The upstream script tags the image as ghidra/ghidra:<version>_<release name>
 release_name="$(sed -n 's/^application\.release\.name=//p' "$ghidra_dir/Ghidra/application.properties")"
