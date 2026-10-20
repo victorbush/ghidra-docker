@@ -5,9 +5,6 @@
 # Usage: ./build.sh [--download-only]
 #   --download-only  Download and extract the release but don't build it. The
 #                    publish workflow uses this and builds the image itself.
-#
-# Environment:
-#   IMAGE_NAME  Image repository to tag the result with (default: ghidra)
 set -euo pipefail
 
 # Ghidra release to build
@@ -16,7 +13,6 @@ GHIDRA_URL=https://github.com/NationalSecurityAgency/ghidra/releases/download/Gh
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-IMAGE_NAME="${IMAGE_NAME:-ghidra}"
 WORK_DIR="$REPO_DIR/work"
 ZIP="$WORK_DIR/$(basename "$GHIDRA_URL")"
 
@@ -32,9 +28,14 @@ rm "$ZIP"
 
 ghidra_dir="$(find "$WORK_DIR" -mindepth 1 -maxdepth 1 -type d -name 'ghidra_*' | head -n 1)"
 
+# Same tag as upstream's build script: <version>_<release name>, e.g. 12.1.4_PUBLIC
+release_name="$(sed -n 's/^application\.release\.name=//p' "$ghidra_dir/Ghidra/application.properties")"
+image_tag="${GHIDRA_VERSION}_${release_name}"
+
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
 	{
 		echo "version=$GHIDRA_VERSION"
+		echo "tag=$image_tag"
 		echo "context=$ghidra_dir"
 	} >> "$GITHUB_OUTPUT"
 fi
@@ -43,14 +44,7 @@ if [ "${1:-}" = "--download-only" ]; then
 	exit 0
 fi
 
-# The upstream script tags the image as ghidra/ghidra:<version>_<release name>
-release_name="$(sed -n 's/^application\.release\.name=//p' "$ghidra_dir/Ghidra/application.properties")"
-upstream_image="ghidra/ghidra:${GHIDRA_VERSION}_${release_name}"
-
 bash "$ghidra_dir/docker/build-docker-image.sh"
 
 # The upstream script doesn't reliably report build failures, so check the image exists
-docker image inspect "$upstream_image" > /dev/null
-
-docker tag "$upstream_image" "$IMAGE_NAME:$GHIDRA_VERSION"
-echo "Tagged $IMAGE_NAME:$GHIDRA_VERSION"
+docker image inspect "ghidra/ghidra:$image_tag" > /dev/null

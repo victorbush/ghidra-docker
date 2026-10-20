@@ -17,7 +17,8 @@ with read and write access).
 
 ## Tags
 
-- `<version>` (e.g. `12.1.4`)
+- `<version>_<release name>` (e.g. `12.1.4_PUBLIC`), the same tag upstream's
+  `build-docker-image.sh` uses
 - `latest`, unless the GitHub release is marked as a pre-release
 
 ## Publishing
@@ -34,8 +35,9 @@ Requires `bash`, `curl`, `unzip` and `docker`.
 ./build.sh
 ```
 
-This runs the release's own `docker/build-docker-image.sh` and tags the image
-`ghidra:<version>`. Set `IMAGE_NAME` to use a different repository name. Nothing is pushed.
+This runs the release's own `docker/build-docker-image.sh`, which tags the image
+`ghidra/ghidra:<version>_<release name>` (e.g. `ghidra/ghidra:12.1.4_PUBLIC`).
+Nothing is pushed.
 
 ## Usage
 
