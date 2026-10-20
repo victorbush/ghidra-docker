@@ -35,7 +35,6 @@ image_tag="${version}_${release_name}"
 
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
 	{
-		echo "version=$version"
 		echo "tag=$image_tag"
 		echo "context=$ghidra_dir"
 	} >> "$GITHUB_OUTPUT"

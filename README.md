@@ -24,8 +24,8 @@ with read and write access).
 ## Publishing
 
 1. Set `GHIDRA_URL` in `build.sh` and merge to `main`.
-2. Create a GitHub release from `main` whose tag is the Ghidra version (e.g. `12.1.4`).
-   The workflow fails if the release tag doesn't match the version of that Ghidra release.
+2. Create a GitHub release from `main` whose tag is the image tag (e.g. `12.1.4_PUBLIC`).
+   The workflow fails if the release tag doesn't match the image tag.
 
 ## Building locally
 
